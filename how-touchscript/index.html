@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>【Unity】TouchScriptを導入する - Skeyll</title>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <meta name="viewport" content="width=100% initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+
+        <!-- Standard meta tags -->
+        <meta name="author" content="Skeyll">
+        <meta name="description" content="TouchScriptの導入から関数の使い方まで丁寧に解説しています。">
+        <meta http-equiv="content-language" content="ja">
+        
+
+        <!-- Twitter meta tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@skeylls2">
+        <meta name="twitter:domain" content="blog.skeyll.net">
+        <meta name="twitter:description" content="TouchScriptの導入から関数の使い方まで丁寧に解説しています。">
+        <meta name="twitter:image" content="https://blog.skeyll.net/image/mainimage.png">
+        <meta name="twitter:creator" content="@skeylls2">
+
+
+
+        <!-- Open Graph Tags -->
+        <meta property="og:site_name" content="Skeyll">
+        
+        <meta property="og:title" content="【Unity】TouchScriptを導入する">
+        <meta property="og:url" content="https://blog.skeyll.net/how-touchscript">
+        <meta property="og:description" content="TouchScriptの導入から関数の使い方まで丁寧に解説しています。">
+        
+        <meta property="og:type" content="article">
+        <meta property="article:published_time" content="2019-10-06">
+        
+        
+        <meta property="article:tags" content="Unity"><meta property="article:tags" content="Assets">
+        
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://blog.skeyll.net/main.css">
+
+        <!-- Feeds -->
+        
+
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149364500-2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-149364500-2');
+        </script>
+
+        <script>
+            function setTheme() {
+                const time = new Date();
+      
+                const prev = localStorage.getItem('date');
+                const date = String(time.getMonth() + 1) + '.' + String(time.getDate());
+      
+                const now = time.getTime();
+                let sunrise;
+                let sunset;
+      
+                function setBodyClass() {
+                    if (now > sunrise && now < sunset) return;
+                    document.body.classList.add('dark');
+                }
+      
+                if (date !== prev) {
+                    fetch('https://api.ipgeolocation.io/astronomy?apiKey=5ed37d85103e4defa5df4c5298ed5215')
+                        .then(res => res.json())
+                        .then(data => {
+                            sunrise = data.sunrise.split(':').map(Number);
+                            sunset = data.sunset.split(':').map(Number);
+                    })
+                    .catch(() => {
+                        sunrise = [7, 0];
+                        sunset = [19, 0];
+                    })
+                    .finally(() => {
+                        sunrise = time.setHours(sunrise[0], sunrise[1], 0);
+                        sunset = time.setHours(sunset[0], sunset[1], 0);
+                        setBodyClass();
+                        localStorage.setItem('sunrise', sunrise);
+                        localStorage.setItem('sunset', sunset);
+                    });
+                    localStorage.setItem('date', date);
+                } else {
+                    sunrise = Number(localStorage.getItem('sunrise'));
+                    sunset = Number(localStorage.getItem('sunset'));
+                    setBodyClass();
+                }
+            }
+        </script>
+    </head>
+    
+    <body class="single">
+    
+    <!-- Apply theme -->
+    <script>
+      setTheme();
+    </script>
+
+    
+        <header class="header">
+            <nav class="nav">
+                
+                <p class="logo"><a href="https://blog.skeyll.net">Skeyll</a></p>
+                
+                <ul class="menu">
+                    
+                    <li><a href="https:&#x2F;&#x2F;skeyll.net&#x2F;">HOME</a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main">
+            
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">【Unity】TouchScriptを導入する</h1>
+        <div class="post-meta">
+            <span class="post-author">
+                Skeyll
+            </span>
+            <span class="post-date"> / <time>October  6, 2019</time></span>
+        </div>
+    </header>
+    <div class="post-content"><p>　<strong>TouchScript</strong>を導入することで<strong>多くのデバイスに対応した複雑なタッチ処理</strong>を行える。<strong>MITライセンス</strong>でオープンソース化されており、<a href="https://assetstore.unity.com/packages/tools/input-management/touchscript-7394"><strong>AssetStore</strong></a><strong>か</strong><a href="https://github.com/TouchScript/TouchScript"><strong>公式GitHub</strong></a><strong>から無料で入手して利用できる</strong>。タッチ スクリプトではイベントハンドラに独自のイベントを追加し、入力を受けたら登録したイベントの処理を行っている。 <span id="continue-reading"></span> 
+　なお、以下の説明は多くが<a href="https://github.com/TouchScript/TouchScript#what-to-read-next">公式GitHubチュートリアル</a>の要約である。</p>
+<ol>
+<li>導入</li>
+<li>ジェスチャーの種類</li>
+<li>イベントを登録</li>
+<li>処理を作成</li>
+</ol>
+<h3 id="導入">導入</h3>
+<ol>
+<li>AssetStoreもしくはGitHubからダウンロード後、インストール。</li>
+<li>Prefabsフォルダの<strong>TouchManager</strong>と<strong>Cursors</strong>をゲームビューに追加。</li>
+<li>カメラにComponent/TouchScript/Layerを追加。</li>
+<li>Component/TouchScript/Gestures、もしくは作成したジェスチャーのスクリプトをオブジェクトに追加。</li>
+</ol>
+<p>以上で入力を扱えるようになる。レイヤーに関してはStandard Layerが3D、2D、UIのオブジェクト、FullScreenLayerがカメラを操作する場合に必要となる。また、テストの実行中にAltを押した後に入力するとダブルタップのシミュレーションが行える。<br />
+※ビルドする場合はCursorを消すこと。</p>
+<h3 id="ジェスチャーの種類">ジェスチャーの種類</h3>
+<p><strong>個別的なもの</strong><br />
+1.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_TapGesture.htm">TapGesture</a><br />
+　Events: Tapped<br />
+　Messages: OnTap.<br />
+2.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_PressGesture.htm">PressGesture</a>（Friendly）<br />
+　Events: Pressed<br />
+　Messages: OnPress.<br />
+3.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_ReleaseGesture.htm">ReleaseGesture</a> 　（Friendly）<br />
+　Events: Released<br />
+　Messages: OnRelease.<br />
+4.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_LongPressGesture.htm">LongPress Gesture</a><br />
+　Events: LongPressed<br />
+　Messages: OnLongPress.<br />
+5.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_FlickGesture.htm">Flick Gesture</a><br />
+　Events: Flicked<br />
+　Messages: OnFlick.</p>
+<p><strong>連続的なもの</strong><br />
+1.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_TransformGestures_TransformGesture.htm">Transform Gesture</a><br />
+　Events: TransformStarted, Transformed, TransformCompleted<br />
+　Messages: OnTransformStart, OnTransform, OnTransformComplete.<br />
+2.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_TransformGestures_ScreenTransformGesture.htm">Screen Transform Gesture</a><br />
+　Transform Gestureと同じだが、スクリーンの座標を参照。<br />
+　Events: TransformStarted, Transformed, TransformCompleted<br />
+　Messages: OnTransformStart, OnTransform, OnTransformComplete.<br />
+3.<a href="http://touchscript.github.io/docs/html/T_TouchScript_Gestures_TransformGestures_PinnedTransformGesture.htm">Pinned Transform Gesture</a><br />
+　Transform Gestureに似ているが、オブジェクトが中心で固定されて動けない場合は固定された点を軸に回転と大きさの変更が行われる。<br />
+　Events: TransformStarted, Transformed, TransformCompleted<br />
+　Messages: OnTransformStart, OnTransform, OnTransformComplete.<br />
+4.Meta Gesture<br />
+　すべてのタッチイベントを個別のイベントに再割り当てする。他の<a href="http://d.hatena.ne.jp/keyword/%A5%B8%A5%A7%A5%B9%A5%C1%A5%E3%A1%BC">ジェスチャー</a>を使うほうが望ましい。<br />
+　Events: TouchBegan, TouchMoved, TouchEnded, TouchCancelled<br />
+　Messages: OnTouchBegan, OnTouchMoved, OnTouchEnded, OnTouchCancelled.<br />
+　※なお上記の１－３のイベントは基本的には二つ目のタッチ入力まで機能する。</p>
+<h3 id="イベントを登録">イベントを登録</h3>
+<p>　新たな挙動を実装するために<strong>イベントハンドラにイベントを追加</strong>する。追加には<strong>OnEnable</strong>と<strong>OnDisanable</strong>メソッドを使い、入力があったときだけイベントの処理を行う。常時イベントを登録しておかないのは、メモリリークの原因となるためである。<br />
+<strong>イベントの登録</strong>は<strong>TouchManeger</strong>に直接することもできるが、特定のジェスチャーのみを使用する場合は<strong>個別のイベントに登録</strong>した方が<strong>入力の識別が早くなる</strong>。<br />
+イベントハンドラの利用には<strong>NameSpace System</strong>を使う。また利用する<strong>ジェスチャーにもNameSpace</strong>が必要である。必要なNameSpaceは「ジェスチャーの種類」から利用したいジェスチャーの個別ページに飛び、上部のNamespaceに記載のあるものである。また登録するイベントハンドラは「ジェスチャーの種類」、もしくは個別のページの<strong>Events</strong>で確認できる。 </p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System; </span><span style="color:#65737e;">//イベントハンドラに必要。
+</span><span style="color:#b48ead;">using </span><span>TouchScript.Gestures; </span><span style="color:#65737e;">//Tap入力に必要。
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">OnEnable</span><span>()
+</span><span>{
+</span><span>　</span><span style="color:#65737e;">//TappedEventのイベントハンドラに登録している。
+</span><span>　</span><span style="color:#bf616a;">GetComponent</span><span>&amp;</span><span style="color:#bf616a;">lt</span><span>;</span><span style="color:#bf616a;">TapGesture</span><span>&amp;</span><span style="color:#bf616a;">gt</span><span>;().</span><span style="color:#bf616a;">Tapped </span><span>+= </span><span style="color:#bf616a;">tappedHandler</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">OnDisable</span><span>()
+</span><span>{
+</span><span>　</span><span style="color:#bf616a;">GetComponent</span><span>&amp;</span><span style="color:#bf616a;">lt</span><span>;</span><span style="color:#bf616a;">TapGesture</span><span>&amp;</span><span style="color:#bf616a;">gt</span><span>;().</span><span style="color:#bf616a;">Tapped </span><span>+= </span><span style="color:#bf616a;">tappedHandler</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">tappedHandler</span><span>(</span><span style="color:#b48ead;">object </span><span style="color:#bf616a;">sender</span><span>, EventArgs </span><span style="color:#bf616a;">e</span><span>)
+</span><span>{
+</span><span>　</span><span style="color:#65737e;">//Tap入力があったときに行う処理。
+</span><span>}
+</span></code></pre>
+<p style="text-align:center">
+  <em>イベントハンドラ</em><br />
+</p>
+<table class="wp-block-table">
+  <tr>
+    <td>
+      　イベントが発生したときに、その<strong>発生したという処理を受けて行う処理</strong>のことを<strong>イベントハンドラ</strong>と呼ぶ。void形で引数にEventArgs型を持ち、プロパティとして振る舞うデリゲートのようなものである。<br />　通常、処理はプログラムによりさまざまに異なる。しかし、「入力を受けた」というイベントの発生を認識する処理自体は汎用的なものである。そのため、イベントの処理を受ける部分と実際の処理を行う部分（イベントハンドラ）を切り分けることができる。こうしたプログラムのことを<strong>イベント駆動型プログラム</strong>と呼ぶ。
+    </td>
+  </tr>
+</table>
+<h3 id="処理を作成する">処理を作成する</h3>
+<p>　TouchScriptにはいくつかの関数が用意されている。例えば、タッチしたスクリーン上の座標の取得や、フレーム間でのスワイプの距離の取得などである。これらはTouchScriptのジェスチャーに対して処理が行われている。また関数を使う場合、<strong>追加でNameSpaceが必要</strong>になることがある。個別の関数のページに行き、記載していないNameSpaceが必要な場合は追加する。<br />
+　以下の例ではTapGestureのScreenPositionを使い、タップした場所のスクリーン上の座標を取得してる。関数の一覧は各ジェスチャーページの<strong>Properties</strong>で確認できる。</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System; </span><span style="color:#65737e;">//イベントハンドラに必要。
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>TouchScript.Gestures; </span><span style="color:#65737e;">//Tap入力に必要。
+</span><span>
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">GetTouchPosition </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour
+</span><span style="color:#eff1f5;">{
+</span><span style="color:#65737e;">//関数を使うため取得。Startで取得してもいい。
+</span><span style="color:#eff1f5;">[</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">]
+</span><span style="color:#eff1f5;">TapGesture </span><span style="color:#bf616a;">tapGesture</span><span style="color:#eff1f5;">; 
+</span><span style="color:#eff1f5;">
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">OnEnable</span><span style="color:#eff1f5;">()
+</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">　</span><span style="color:#65737e;">//Serializeで取得してるため、ここでGetComponentする必要はない。
+</span><span style="color:#eff1f5;">　</span><span style="color:#bf616a;">tapGesture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Tapped </span><span>+= </span><span style="color:#bf616a;">OnTapped</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">}
+</span><span style="color:#eff1f5;">
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">OnDisable</span><span style="color:#eff1f5;">()
+</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">　</span><span style="color:#bf616a;">tapGesture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Tapped </span><span>+= </span><span style="color:#bf616a;">onTapped</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">}
+</span><span style="color:#eff1f5;">
+</span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">OnTapped</span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">object </span><span style="color:#bf616a;">sender</span><span style="color:#eff1f5;">, EventArgs </span><span style="color:#bf616a;">e</span><span style="color:#eff1f5;">)
+</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">　Vector2 </span><span style="color:#bf616a;">tapPosition </span><span>= </span><span style="color:#bf616a;">tapGesture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ScreenPosition</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">　</span><span style="color:#bf616a;">Debug</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Log</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">tapPosition </span><span>+ &quot;</span><span style="color:#a3be8c;">をタップした</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<h4 id="can-kao"><strong>参考</strong></h4>
+<p><a href="https://github.com/TouchScript/TouchScript">TouchScript</a><br />
+<a href="https://github.com/TouchScript/TouchScript/wiki/Writing-a-Custom-Gesture">Writing a Custom Gesture</a><br />
+<a href="https://ufcpp.net/study/csharp/sp_event.html">イベント – C# によるプログラミング入門 | ++C++; // 未確認飛行 C</a><br />
+<a href="http://developer.wonderpla.net/entry/blog/engineer/Unity_TouchScript/">Unityにおける簡単なジェスチャー取得 – WonderPlanet DEVELOPER BLOG</a><br />
+<a href="http://blog.d-yama7.com/archives/223%22">TouchScriptアセットのチュートリアルを試した | D.YAMA Blog</a></p>
+</div>
+    <footer class="post-footer">
+        
+        <ul class="post-tags">
+        
+            <li><a href="https://blog.skeyll.net/tags/unity/">Unity</a></li>
+        
+            <li><a href="https://blog.skeyll.net/tags/assets/">Assets</a></li>
+        
+        </ul>
+        
+    </footer>
+</article>
+
+        </main>
+
+        <footer class="footer">
+            <span><a href="https://skeyll.net/policy">Privacy</a></span> <span>&copy;2019-2022 <a href="https://blog.skeyll.net"><a href="https://skeyll.net/">Skeyll</a></span>
+        </footer>
+    
+    </body>
+</html>

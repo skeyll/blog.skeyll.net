@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>ScriptableObject Perfect Guide - Skeyll</title>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <meta name="viewport" content="width=100% initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+
+        <!-- Standard meta tags -->
+        <meta name="author" content="Skeyll">
+        <meta name="description" content="Introduce Unity ScriptableObject. It&#x27;s useful in holding common value, meta data and so on.">
+        <meta http-equiv="content-language" content="en">
+
+        <!-- Twitter meta tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@skeylls2">
+        <meta name="twitter:domain" content="blog.skeyll.net">
+        <meta name="twitter:description" content="Introduce Unity ScriptableObject. It&#x27;s useful in holding common value, meta data and so on.">
+        <meta name="twitter:image" content="https://blog.skeyll.net/image/mainimage.png">
+        <meta name="twitter:creator" content="@skeylls2">
+
+
+
+        <!-- Open Graph Tags -->
+        <meta property="og:site_name" content="Skeyll">
+        
+        <meta property="og:title" content="ScriptableObject Perfect Guide">
+        <meta property="og:url" content="https://blog.skeyll.net/scriptableobject-perfect-guide">
+        <meta property="og:description" content="Introduce Unity ScriptableObject. It&#x27;s useful in holding common value, meta data and so on.">
+        
+        <meta property="og:type" content="article">
+        <meta property="article:published_time" content="2020-01-02">
+        
+        
+        <meta property="article:tags" content="Unity">
+        
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://blog.skeyll.net/main.css">
+
+        <!-- Feeds -->
+        
+
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149364500-2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-149364500-2');
+        </script>
+
+        <script>
+            function setTheme() {
+                const time = new Date();
+      
+                const prev = localStorage.getItem('date');
+                const date = String(time.getMonth() + 1) + '.' + String(time.getDate());
+      
+                const now = time.getTime();
+                let sunrise;
+                let sunset;
+      
+                function setBodyClass() {
+                    if (now > sunrise && now < sunset) return;
+                    document.body.classList.add('dark');
+                }
+      
+                if (date !== prev) {
+                    fetch('https://api.ipgeolocation.io/astronomy?apiKey=5ed37d85103e4defa5df4c5298ed5215')
+                        .then(res => res.json())
+                        .then(data => {
+                            sunrise = data.sunrise.split(':').map(Number);
+                            sunset = data.sunset.split(':').map(Number);
+                    })
+                    .catch(() => {
+                        sunrise = [7, 0];
+                        sunset = [19, 0];
+                    })
+                    .finally(() => {
+                        sunrise = time.setHours(sunrise[0], sunrise[1], 0);
+                        sunset = time.setHours(sunset[0], sunset[1], 0);
+                        setBodyClass();
+                        localStorage.setItem('sunrise', sunrise);
+                        localStorage.setItem('sunset', sunset);
+                    });
+                    localStorage.setItem('date', date);
+                } else {
+                    sunrise = Number(localStorage.getItem('sunrise'));
+                    sunset = Number(localStorage.getItem('sunset'));
+                    setBodyClass();
+                }
+            }
+        </script>
+    </head>
+    
+    <body class="single">
+    
+    <!-- Apply theme -->
+    <script>
+      setTheme();
+    </script>
+
+    
+        <header class="header">
+            <nav class="nav">
+                
+                <p class="logo"><a href="https://blog.skeyll.net">Skeyll</a></p>
+                
+                <ul class="menu">
+                    
+                    <li><a href="https:&#x2F;&#x2F;skeyll.net&#x2F;">HOME</a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main">
+            
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">ScriptableObject Perfect Guide</h1>
+        <div class="post-meta">
+            <span class="post-author">
+                Skeyll
+            </span>
+            <span class="post-date"> / <time>January  2, 2020</time></span>
+        </div>
+    </header>
+    <div class="post-content"><p> ”A ScriptableObject is a data container that you can use to save large amounts of data, independent of class instances. ”<a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#inter0">*1</a> <em>It improve project’s performance</em>. When your project have some similar scripts like managing a enemy and environment, those parameter create each instance in memory. If t<span>hose refer to a variable in ScripatableObject, it reduce instance to one.</span></p>
+<span id="continue-reading"></span>
+<p>　ScriptableObject have other usage besides optimizing projects. It’s just “.asset” file having game data but you can also use it <em>like as Json and CSV</em>. ScriptableObject store it as unity law data, so the processing speed is fast. In addition, you can set a value in Inspecter, so it’s easy to cange and see it. When a project refer to a same instance across scenes, it isn’t  destroyed and can be used  like <em>static variable</em>.</p>
+<p> I introduce basic usage of ScriptableObject and the way to use it in my game! If you want sample, please check <a href="https://github.com/SkeyllK/ScriptableNovels">my Github project</a>!</p>
+<ul>
+<li><a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#basis">Basis</a></li>
+<li><a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#edit-return-value">Edit return value</a></li>
+<li><a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#make-other-data-construction-in-scripatableobject">Make other data construction in ScriptableObject</a></li>
+<li><a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#notes">Notes</a></li>
+<li><a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#reference">Reference</a></li>
+</ul>
+<h2 id="basis">Basis</h2>
+<p>　At first, you create a script <strong>inheriting SctiptableObject</strong> instead of MonoBehaviour. If you give it’s class <strong>“CreateAssetMenu” attribute</strong>, you can make asset file on menu of the inspector. <strong>You decide a file name , a name on menu and  an order on create menu with this attribute</strong>. This is all you need to use ScriptableObject. You can create it from “Create” on Project window or “Assets/Create” on window menu.</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span>
+</span><span>[</span><span style="color:#bf616a;">CreateAssetMenu</span><span>(</span><span style="color:#bf616a;">fileName </span><span>= &quot;</span><span style="color:#a3be8c;">Data</span><span>&quot;,</span><span style="color:#bf616a;">menuName </span><span>= &quot;</span><span style="color:#a3be8c;">GameData/EnemyData</span><span>&quot;, </span><span style="color:#bf616a;">order </span><span>= </span><span style="color:#d08770;">0</span><span>)]
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScriptableContainer </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">ScriptableObject　</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public enum </span><span style="color:#eff1f5;">EnemyType {
+</span><span style="color:#eff1f5;">      </span><span style="color:#d08770;">Nomal</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">      </span><span style="color:#d08770;">Boss
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public </span><span style="color:#eff1f5;">EnemyType </span><span style="color:#bf616a;">enemyType</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">enemyLevel</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public bool </span><span style="color:#bf616a;">isHuman</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public </span><span style="color:#eff1f5;">Vector3[] </span><span style="color:#bf616a;">spawnPoints</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p><img loading="lazy" src="http://blog.skeyll.net/image/2019/12/ScriptableObject01-300x218.png" alt="" width="300" height="218" class="alignnone size-medium wp-image-217" srcset="https://blog.skeyll.net/image/2019/12/ScriptableObject01-300x218.png 300w, https://blog.skeyll.net/image/2019/12/ScriptableObject01.png 397w" sizes="(max-width: 300px) 100vw, 300px" /><img loading="lazy" src="http://blog.skeyll.net/image/2019/12/ScriptableObject02-300x210.png" alt="" width="300" height="210" class="size-medium wp-image-218 alignright" srcset="https://blog.skeyll.net/image/2019/12/ScriptableObject02-300x210.png 300w, https://blog.skeyll.net/image/2019/12/ScriptableObject02.png 374w" sizes="(max-width: 300px) 100vw, 300px" /> </p>
+<p> When you use create one, you attach it to a script on inspecter and get it from Resources by its name. At this, that variable name should be ScripableObject’s name instead of a assets file’s.</p>
+<pre data-lang="C#" style="background-color:#2b303b;color:#c0c5ce;" class="language-C# "><code class="language-C#" data-lang="C#"><span>ScriptableContainer </span><span style="color:#bf616a;">scriptableContainer
+</span></code></pre>
+<h5 id="how-is-sctiptableobject-performance">  <em>How is SctiptableObject performance?</em></h5>
+<p>  ScriptableObject is <strong>high performance in loading speed and memory</strong>. This is because ScriptableObject store unity raw data.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2019/12/graph.png" alt="" width="681" height="249">
+Comparison with  ScriptableObject and JSON.[*2](#inter0)
+<h2 id="edit-return-value">Edit return value</h2>
+<p> ScriptableObject can use <strong>function and p****roperty</strong>.  So it means to edit return value. When you develop a game with a team and other people set the data,  specified value  on editor may be easy to understand. </p>
+<p> This sample is for Item data. You can set that type and it change id automatically. This sample give one value as ID but adding it by Rarity can create many variety ID.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/01/ScriptableObject03-300x146.png" alt="" width="300" height="146" class="alignnone size-medium wp-image-248" srcset="https://blog.skeyll.net/image/2020/01/ScriptableObject03-300x146.png 300w, https://blog.skeyll.net/image/2020/01/ScriptableObject03.png 376w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span>
+</span><span>[</span><span style="color:#bf616a;">CreateAssetMenu</span><span>(</span><span style="color:#bf616a;">fileName </span><span>= &quot;</span><span style="color:#a3be8c;">Data</span><span>&quot;, </span><span style="color:#bf616a;">menuName </span><span>= &quot;</span><span style="color:#a3be8c;">GameData/ItemData</span><span>&quot;, </span><span style="color:#bf616a;">order </span><span>= </span><span style="color:#d08770;">1</span><span>)]
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScriptableProperty </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">ScriptableObject </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public enum </span><span style="color:#eff1f5;">ItemType {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Fish</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Meat</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Mushroom
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public enum </span><span style="color:#eff1f5;">ItemRarity {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Common</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Rare</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Epic
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] ItemType </span><span style="color:#bf616a;">_itemType</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] ItemRarity </span><span style="color:#bf616a;">_itemRarity</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">stock</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">_itemID</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">ItemID </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_itemID</span><span style="color:#eff1f5;">; }
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">private set </span><span style="color:#eff1f5;">{  </span><span style="color:#bf616a;">_itemID </span><span>= </span><span style="color:#bf616a;">value</span><span style="color:#eff1f5;">;}
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">ItemName </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_itemType</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">() </span><span>+ </span><span style="color:#bf616a;">_itemRarity</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(); } }
+</span><span style="color:#eff1f5;">    
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">SetID</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">if </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">_itemType </span><span>== </span><span style="color:#bf616a;">ItemType</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Fish</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">ItemID </span><span>= </span><span style="color:#d08770;">101</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        } </span><span style="color:#b48ead;">else if </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">_itemType </span><span>== </span><span style="color:#bf616a;">ItemType</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Meat</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">ItemID </span><span>= </span><span style="color:#d08770;">201</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        } </span><span style="color:#b48ead;">else if </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">_itemType </span><span>== </span><span style="color:#bf616a;">ItemType</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Mushroom</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">ItemID </span><span>= </span><span style="color:#d08770;">301</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        }
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">Start</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">SetID</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p> And the result is like this.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/01/ScriptableObject04-300x56.png" alt="" width="300" height="56" class="alignnone size-medium wp-image-249" srcset="https://blog.skeyll.net/image/2020/01/ScriptableObject04-300x56.png 300w, https://blog.skeyll.net/image/2020/01/ScriptableObject04.png 420w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<pre data-lang="C#" style="background-color:#2b303b;color:#c0c5ce;" class="language-C# "><code class="language-C#" data-lang="C#"><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span>
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScriptableTest </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour　</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] ScriptableProperty </span><span style="color:#bf616a;">itemData</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">Start</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">Debug</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Log</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">ID:</span><span>&quot; + </span><span style="color:#bf616a;">itemData</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ItemID </span><span>+ &quot;</span><span style="color:#a3be8c;">/Name:</span><span>&quot; + </span><span style="color:#bf616a;">itemData</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ItemName </span><span>+ &quot;</span><span style="color:#a3be8c;">/Stock:</span><span>&quot; + </span><span style="color:#bf616a;">itemData</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">stock</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<h2 id="make-other-data-construction-in-scripatableobject">Make other data construction in ScripatableObject</h2>
+<p>　ScriptableObject can have <strong>other data construction</strong> <strong>.</strong> hen it have other structure, it need <em>serialize</em> the part explicitly. If you don’t add serialize attribute, the data doesn’t appear on inspector.<a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#inter0">*3</a> If the first data of an construction is string, each array name become that character.</p>
+<p>This example is for story data. It hold the whole data of one scene. And it get some data from Resources.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/01/ScriptableObject05-300x293.png" alt="" width="300" height="293" class="alignnone size-medium wp-image-254" srcset="https://blog.skeyll.net/image/2020/01/ScriptableObject05-300x293.png 300w, https://blog.skeyll.net/image/2020/01/ScriptableObject05.png 533w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<pre data-lang="C#" style="background-color:#2b303b;color:#c0c5ce;" class="language-C# "><code class="language-C#" data-lang="C#"><span style="color:#b48ead;">using </span><span>System.Collections.Generic;
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span>
+</span><span>[</span><span style="color:#bf616a;">CreateAssetMenu</span><span>(</span><span style="color:#bf616a;">menuName </span><span>= &quot;</span><span style="color:#a3be8c;">GameData/CreateProt</span><span>&quot;)]
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">StoryData </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">ScriptableObject </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">enum </span><span style="color:#eff1f5;">BGM {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Street</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">GrassLand</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">NightPark
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] BGM </span><span style="color:#bf616a;">_bgm</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">bgm </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_bgm</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(); } }
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public </span><span style="color:#eff1f5;">List &lt;storyscene&gt; </span><span style="color:#bf616a;">StoryScript </span><span>= new </span><span style="color:#eff1f5;">List&amp;lt;storyscene&gt;();
+</span><span style="color:#eff1f5;">}
+</span><span>
+</span><span>[</span><span style="color:#bf616a;">System</span><span>.</span><span style="color:#bf616a;">Serializable</span><span>]
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">StoryScene </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">enum </span><span style="color:#eff1f5;">TextRole {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Title</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Discription</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Conversation
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Scene background
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">enum </span><span style="color:#eff1f5;">Field {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">House</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Street</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Grassland
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">enum </span><span style="color:#eff1f5;">Model {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">David</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Thijs
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">enum </span><span style="color:#eff1f5;">ModelPos {
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Right</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Center</span><span style="color:#eff1f5;">,
+</span><span style="color:#eff1f5;">        </span><span style="color:#d08770;">Left
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">Speaker</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] TextRole </span><span style="color:#bf616a;">_textRole</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">textRole </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">int</span><span style="color:#eff1f5;">)</span><span style="color:#bf616a;">_textRole</span><span style="color:#eff1f5;">; } }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Model </span><span style="color:#bf616a;">_model</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">ModelNumber</span><span style="color:#eff1f5;">; </span><span style="color:#65737e;">//Change the model image.
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">model </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_model</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">() </span><span>+ </span><span style="color:#bf616a;">ModelNumber</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(); } }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] ModelPos </span><span style="color:#bf616a;">_modelPos</span><span style="color:#eff1f5;">; </span><span style="color:#65737e;">//Change the model position by if statement.
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public int </span><span style="color:#bf616a;">modelPos </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">int</span><span style="color:#eff1f5;">)</span><span style="color:#bf616a;">_modelPos</span><span style="color:#eff1f5;">; } }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Field </span><span style="color:#bf616a;">_field</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] </span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">fieldNumber</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">field </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">get </span><span style="color:#eff1f5;">{ </span><span style="color:#b48ead;">return </span><span style="color:#bf616a;">_field</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">() </span><span>+ </span><span style="color:#bf616a;">fieldNumber</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(); } }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public string </span><span style="color:#bf616a;">SceneText</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p>  It’s an example for loading above ScripatableObject. At first it get the whole data and load each one. 
+ This is the result loding the data. After reading all data, it invoke the end process.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/01/ScriptableObject06.png" alt="" width="242" height="161" class="alignnone size-full wp-image-255" />
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System.Collections.Generic;
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span>
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">SampleRoder </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    StoryData </span><span style="color:#bf616a;">storyData</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    StoryScene </span><span style="color:#bf616a;">storyScene</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">loadLine</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">storynumber</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">Start</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">storynumber </span><span>= </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Get an asset file from resources.
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Set the &quot;storynumber&quot; on other scene.
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">storyData </span><span>= </span><span style="color:#bf616a;">Resources</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Load</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Story</span><span>&quot; + </span><span style="color:#bf616a;">storynumber</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">() ) </span><span>as </span><span style="color:#eff1f5;">StoryData;
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">LoadNextPart</span><span style="color:#eff1f5;">(); 
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Subscribe to button click event.
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">LoadNextPart</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">if </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">loadLine </span><span>&lt; </span><span style="color:#bf616a;">storyData</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">StoryScript</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Count</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">            </span><span style="color:#65737e;">//At first, load some data from array.
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">storyScene </span><span>= </span><span style="color:#bf616a;">storyData</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">StoryScript</span><span style="color:#eff1f5;">[</span><span style="color:#bf616a;">loadLine</span><span style="color:#eff1f5;">];
+</span><span style="color:#eff1f5;">            </span><span style="color:#65737e;">//Do stuff here
+</span><span style="color:#eff1f5;">            
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">Debug</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Log</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">storyScene</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SceneText</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">loadLine</span><span>++</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        } </span><span style="color:#b48ead;">else </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">            </span><span style="color:#bf616a;">DisplayResult</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        }
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">void </span><span style="color:#8fa1b3;">DisplayResult</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">Debug</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Log</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">CLEAR!</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<h2 id="notes">Notes</h2>
+<p> The value of ScriptableObject remain on the editor like Transform value. However, in an actual<span> </span>equipment the values are initialized every time player start app. So you use ScriptableObject like an actual environment, need to initialize the values on <em>Start</em> or <em>OnEnable</em>.</p>
+<h6 id="inter0"><div class="interlink">inter0</font></h6>
+<h2 id="reference">Reference</h2>
+<ol>
+<li><a href="https://docs.unity3d.com/Manual/class-ScriptableObject.html">Unity – Manual: ScriptableObject</a> </li>
+<li><a href="http://kan-kikuchi.hatenablog.com/entry/ScriptableObject_VS_Json">ScriptableObjectとJSONの比較(データサイズ、ロード時間、メモリ使用量)【Unity】 
+【ScriptableObject】 – (:3[kanのメモ帳]</a> </li>
+<li><a href="https://docs.unity3d.com/2018.3/Documentation/Manual/script-Serialization.html">Unity – Manual: Script Serialization</a></li>
+</ol>
+</div>
+    <footer class="post-footer">
+        
+        <ul class="post-tags">
+        
+            <li><a href="https://blog.skeyll.net/tags/unity/">Unity</a></li>
+        
+        </ul>
+        
+    </footer>
+</article>
+
+        </main>
+
+        <footer class="footer">
+            <span><a href="https://skeyll.net/policy">Privacy</a></span> <span>&copy;2019-2022 <a href="https://blog.skeyll.net"><a href="https://skeyll.net/">Skeyll</a></span>
+        </footer>
+    
+    </body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Take same size Screenshots regardless of resolutions - Unity - Skeyll</title>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <meta name="viewport" content="width=100% initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+
+        <!-- Standard meta tags -->
+        <meta name="author" content="Skeyll">
+        <meta name="description" content="How to make a screenshot to share on social media.">
+        <meta http-equiv="content-language" content="en">
+
+        <!-- Twitter meta tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@skeylls2">
+        <meta name="twitter:domain" content="blog.skeyll.net">
+        <meta name="twitter:description" content="How to make a screenshot to share on social media.">
+        <meta name="twitter:image" content="https://blog.skeyll.net/image/mainimage.png">
+        <meta name="twitter:creator" content="@skeylls2">
+
+
+
+        <!-- Open Graph Tags -->
+        <meta property="og:site_name" content="Skeyll">
+        
+        <meta property="og:title" content="Take same size Screenshots regardless of resolutions - Unity">
+        <meta property="og:url" content="https://blog.skeyll.net/take-screenshots-unity">
+        <meta property="og:description" content="How to make a screenshot to share on social media.">
+        
+        <meta property="og:type" content="article">
+        <meta property="article:published_time" content="2020-04-30">
+        
+        
+        <meta property="article:tags" content="Unity">
+        
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://blog.skeyll.net/main.css">
+
+        <!-- Feeds -->
+        
+
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149364500-2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-149364500-2');
+        </script>
+
+        <script>
+            function setTheme() {
+                const time = new Date();
+      
+                const prev = localStorage.getItem('date');
+                const date = String(time.getMonth() + 1) + '.' + String(time.getDate());
+      
+                const now = time.getTime();
+                let sunrise;
+                let sunset;
+      
+                function setBodyClass() {
+                    if (now > sunrise && now < sunset) return;
+                    document.body.classList.add('dark');
+                }
+      
+                if (date !== prev) {
+                    fetch('https://api.ipgeolocation.io/astronomy?apiKey=5ed37d85103e4defa5df4c5298ed5215')
+                        .then(res => res.json())
+                        .then(data => {
+                            sunrise = data.sunrise.split(':').map(Number);
+                            sunset = data.sunset.split(':').map(Number);
+                    })
+                    .catch(() => {
+                        sunrise = [7, 0];
+                        sunset = [19, 0];
+                    })
+                    .finally(() => {
+                        sunrise = time.setHours(sunrise[0], sunrise[1], 0);
+                        sunset = time.setHours(sunset[0], sunset[1], 0);
+                        setBodyClass();
+                        localStorage.setItem('sunrise', sunrise);
+                        localStorage.setItem('sunset', sunset);
+                    });
+                    localStorage.setItem('date', date);
+                } else {
+                    sunrise = Number(localStorage.getItem('sunrise'));
+                    sunset = Number(localStorage.getItem('sunset'));
+                    setBodyClass();
+                }
+            }
+        </script>
+    </head>
+    
+    <body class="single">
+    
+    <!-- Apply theme -->
+    <script>
+      setTheme();
+    </script>
+
+    
+        <header class="header">
+            <nav class="nav">
+                
+                <p class="logo"><a href="https://blog.skeyll.net">Skeyll</a></p>
+                
+                <ul class="menu">
+                    
+                    <li><a href="https:&#x2F;&#x2F;skeyll.net&#x2F;">HOME</a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main">
+            
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">Take same size Screenshots regardless of resolutions - Unity</h1>
+        <div class="post-meta">
+            <span class="post-author">
+                Skeyll
+            </span>
+            <span class="post-date"> / <time>April 30, 2020</time></span>
+        </div>
+    </header>
+    <div class="post-content"><p>When we create a game, we often support <strong>the multiple-device</strong>. Even if the screen resolutions are different, <strong>canvas config can realize it</strong> easily. It changes the UI ratio to fit each resolution.<br />
+<strong>To take a screenshot on a part of a screen</strong>, <strong>we need input a resolution</strong> but we cannot know the object size on each device. Do we need calculate each device ratio for taking a screenshot on a game result and a user profile?<br />
+No. <strong>We can do it just with using another canvas or changing CanvasScaler by a script.</strong></p>
+<span id="continue-reading"></span>
+<p>Environment: Unity 2018.4.6f</p>
+<ul>
+<li><a href="https://blog.skeyll.net/take-screenshots-unity/#how-to-take-a-screenshot-in-unity">How to take a screen shot</a></li>
+<li><a href="https://blog.skeyll.net/take-screenshots-unity/#take-a-screenshot-regardless-of-resolution-by-using-other-canvas">Support multiple ratio by other canvas</a></li>
+<li><a href="https://blog.skeyll.net/take-screenshots-unity/#switch-the-canvas-config-before-screenshot">Change UI Scale Mode for ScreenShot</a></li>
+<li><a href="https://blog.skeyll.net/take-screenshots-unity/#references">References</a></li>
+</ul>
+<h2 id="how-to-take-a-screenshot-in-unity">How to take a screenshot in Unity</h2>
+<p><strong>We can screenshot a game scene with Unity's API</strong>.  The API is several types in Unity, each of which has slightly different features.<a href="https://blog.skeyll.net/take-screenshots-unity/#inter0">*1</a> often use <em><a href="https://docs.unity3d.com/ScriptReference/Texture2D.ReadPixels.html">Texture2D</a></em>. It's easy, yet flexible.</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System.Collections;
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>System.IO;
+</span><span style="color:#b48ead;">using </span><span>System;
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScreenshotGenerater </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Vector2Int </span><span style="color:#bf616a;">imageSize </span><span>= new </span><span style="color:#eff1f5;">Vector2Int (</span><span style="color:#d08770;">500</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">250</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Set to ButtonEvent.
+</span><span style="color:#eff1f5;">	</span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">LoadTexsture</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">StartCoroutine</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">TakeScreenshot</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    IEnumerator </span><span style="color:#8fa1b3;">TakeScreenshot</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Wait until rendered.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">yield return </span><span>new </span><span style="color:#eff1f5;">WaitForEndOfFrame();
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Create a new texture with the width and height of the screen
+</span><span style="color:#eff1f5;">        Texture2D </span><span style="color:#bf616a;">texture </span><span>= new </span><span style="color:#eff1f5;">Texture2D(</span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">TextureFormat</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">RGB24</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//case: we take a pic on the center of screen
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//If you take a ScreenShot of the resolution size, you can use the following code.
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//texture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosX </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">width </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosY </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">height </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ReadPixels</span><span style="color:#eff1f5;">(</span><span>new </span><span style="color:#eff1f5;">Rect(</span><span style="color:#bf616a;">imagePosX</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imagePosY</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">), </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Apply</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Can select file extention
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">byte</span><span style="color:#eff1f5;">[] </span><span style="color:#bf616a;">jpgFile </span><span>= </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">EncodeToJPG</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Release explicitly.     
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">DestroyImmediate</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Use the date in the file name,
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//as it will be overwritten if the same file is present.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">string </span><span style="color:#bf616a;">savePath </span><span>= &quot;</span><span style="color:#a3be8c;">/screenshot/</span><span>&quot; + </span><span style="color:#bf616a;">DateTime</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Now</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">MMdd_hhmmss</span><span>&quot;</span><span style="color:#eff1f5;">) </span><span>+ &quot;</span><span style="color:#a3be8c;">.jpg</span><span>&quot;</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">File</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">WriteAllBytes</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Application</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">dataPath </span><span>+ </span><span style="color:#bf616a;">savePath</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">jpgFile</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p><em>Screen.width</em> and <em>Screen.height</em> are the actual width of the player window.<a href="https://blog.skeyll.net/take-screenshots-unity/#inter0">*2</a> This means that if we support multiple resolutions, the value of screen size is not always fixed number.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot01.png" alt="" class="alignnone wp-image-349 size-full" width="1831" height="709" srcset="https://blog.skeyll.net/image/2020/04/Screenshot01.png 1831w, https://blog.skeyll.net/image/2020/04/Screenshot01-300x116.png 300w, https://blog.skeyll.net/image/2020/04/Screenshot01-644x249.png 644w, https://blog.skeyll.net/image/2020/04/Screenshot01-768x297.png 768w, https://blog.skeyll.net/image/2020/04/Screenshot01-1536x595.png 1536w" sizes="(max-width: 1831px) 100vw, 1831px" /> 
+<p>So, when we take a ScreenShot on other resolution, the images change. </p>
+<p><img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot02-300x150.jpg" alt="" class="alignnone wp-image-350 size-medium" width="300" height="150" srcset="https://blog.skeyll.net/image/2020/04/Screenshot02-300x150.jpg 300w, https://blog.skeyll.net/image/2020/04/Screenshot02.jpg 500w" sizes="(max-width: 300px) 100vw, 300px" /> 　　<img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot03-300x150.jpg" alt="" class="size-medium wp-image-351 alignnone" width="300" height="150" srcset="https://blog.skeyll.net/image/2020/04/Screenshot03-300x150.jpg 300w, https://blog.skeyll.net/image/2020/04/Screenshot03.jpg 500w" sizes="(max-width: 300px) 100vw, 300px" /></p>
+<p>If we take a screenshot of the entire screen, there is no problem. But we cannot use it to share at a specific size in a social media.</p>
+<h2 id="take-a-screenshot-regardless-of-resolution-by-using-other-canvas">Take a screenshot regardless of Resolution by using other Canvas</h2>
+<p><strong>This cause is <em>Scale With Screen Size</em> on <em>Canvas Scaler</em></strong> to support multiple resolutions. We just use the other Canvas instead of it to take a screenshot regardless of resolution!</p>
+<p><strong>The Canvas that set <em>Constant Pixel Size</em> has the fixed size value.</strong> </p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot04-300x78.png" alt="" class="alignnone size-medium wp-image-354" width="300" height="78" srcset="https://blog.skeyll.net/image/2020/04/Screenshot04-300x78.png 300w, https://blog.skeyll.net/image/2020/04/Screenshot04.png 375w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<p>We duplicate the contents making a image to the other Canvas, and all we need is activate it before taking a screenshot.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot05-644x558.jpg" alt="" class="alignnone wp-image-355 size-large" width="644" height="558" srcset="https://blog.skeyll.net/image/2020/04/Screenshot05-644x558.jpg 644w, https://blog.skeyll.net/image/2020/04/Screenshot05-300x260.jpg 300w, https://blog.skeyll.net/image/2020/04/Screenshot05.jpg 710w" sizes="(max-width: 644px) 100vw, 644px" /> 
+<p>We need also fix the code to switch the Canvas active.</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System.Collections;
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>System.IO;
+</span><span style="color:#b48ead;">using </span><span>System;
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScreenshotGenerater </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Vector2Int </span><span style="color:#bf616a;">imageSize </span><span>= new </span><span style="color:#eff1f5;">Vector2Int (</span><span style="color:#d08770;">500</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">250</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] GameObject </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Set to ButtonEvent.
+</span><span style="color:#eff1f5;">	</span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">LoadTexsture</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Change Canvas active.
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetActive</span><span style="color:#eff1f5;">(</span><span style="color:#d08770;">true</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">StartCoroutine</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">TakeScreenshot</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    IEnumerator </span><span style="color:#8fa1b3;">TakeScreenshot</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Wait until rendered.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">yield return </span><span>new </span><span style="color:#eff1f5;">WaitForEndOfFrame();
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Create a new texture with the width and height of the screen.
+</span><span style="color:#eff1f5;">        Texture2D </span><span style="color:#bf616a;">texture </span><span>= new </span><span style="color:#eff1f5;">Texture2D(</span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">TextureFormat</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">RGB24</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//case: we take a pic on the center of screen
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//If you take a ScreenShot of the resolution size, you can use the following code.
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//texture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosX </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">width </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosY </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">height </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ReadPixels</span><span style="color:#eff1f5;">(</span><span>new </span><span style="color:#eff1f5;">Rect(</span><span style="color:#bf616a;">imagePosX</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imagePosY</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">), </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Apply</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Can select file extention.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">byte</span><span style="color:#eff1f5;">[] </span><span style="color:#bf616a;">jpgFile </span><span>= </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">EncodeToJPG</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Release explicitly.     
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">DestroyImmediate</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Change Canvas active.
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetActive</span><span style="color:#eff1f5;">(</span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Use the date in the file name,
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//as it will be overwritten if the same file is present.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">string </span><span style="color:#bf616a;">savePath </span><span>= &quot;</span><span style="color:#a3be8c;">/</span><span>&quot; + </span><span style="color:#bf616a;">DateTime</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Now</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">MMdd_hhmmss</span><span>&quot;</span><span style="color:#eff1f5;">) </span><span>+ &quot;</span><span style="color:#a3be8c;">.jpg</span><span>&quot;</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">File</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">WriteAllBytes</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Application</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">dataPath </span><span>+ </span><span style="color:#bf616a;">savePath</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">jpgFile</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p>The results are as follows. The content is now the same and the ideal screenshot is created!</p>
+<p><img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot06.jpg-300x150.jpg" alt="" class="alignnone size-medium wp-image-356" width="300" height="150" srcset="https://blog.skeyll.net/image/2020/04/Screenshot06.jpg-300x150.jpg 300w, https://blog.skeyll.net/image/2020/04/Screenshot06.jpg.jpg 500w" sizes="(max-width: 300px) 100vw, 300px" /> 　　<img loading="lazy" src="http://blog.skeyll.net/image/2020/04/Screenshot07-300x150.jpg" alt="" class="alignnone size-medium wp-image-357" width="300" height="150" srcset="https://blog.skeyll.net/image/2020/04/Screenshot07-300x150.jpg 300w, https://blog.skeyll.net/image/2020/04/Screenshot07.jpg 500w" sizes="(max-width: 300px) 100vw, 300px" /></p>
+<h2 id="switch-the-canvas-config-before-screenshot">Switch the Canvas config before screenshot</h2>
+<p>We can always get the same size screenshot by using another Canvas, but this method is not practical. <strong>It’s good as long as the data is small</strong>, but it’s not for taking a complex data. This is because <strong>all the data must be reflected in another Canvas too</strong>.</p>
+<p>So, Let’s <strong>switch the configuration of the Canvas</strong> where the user profile or game results are placed from the script, and take a screenshot. Note that <strong>the change is seen in game scene</strong>: changing the CanvasScaler needs one frame, and drawing it one more frame. The result is we can see a UI for screenshot ratios.</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>System.Collections;
+</span><span style="color:#b48ead;">using </span><span>UnityEngine.UI; </span><span style="color:#65737e;">//For CanvasScale
+</span><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>System.IO;
+</span><span style="color:#b48ead;">using </span><span>System;
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">ScreenshotGenerater2 </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour </span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Vector2Int </span><span style="color:#bf616a;">imageSize </span><span>= new </span><span style="color:#eff1f5;">Vector2Int (</span><span style="color:#d08770;">500</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">250</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Get reference on UnityEditor.
+</span><span style="color:#eff1f5;">    [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] CanvasScaler </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Set to ButtonEvent.
+</span><span style="color:#eff1f5;">	</span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">LoadTexsture</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Switch ScaleMode
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">uiScaleMode </span><span>= </span><span style="color:#bf616a;">CanvasScaler</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ScaleMode</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ConstantPixelSize</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">StartCoroutine</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">TakeScreenshot</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">    IEnumerator </span><span style="color:#8fa1b3;">TakeScreenshot</span><span style="color:#eff1f5;">() {
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Wait until rendered.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">yield return </span><span style="color:#d08770;">null</span><span style="color:#eff1f5;">; </span><span style="color:#65737e;">//Switch CanvasScaler
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">yield return </span><span>new </span><span style="color:#eff1f5;">WaitForEndOfFrame(); </span><span style="color:#65737e;">//Draw it
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Create a new texture with the width and height of the screen.
+</span><span style="color:#eff1f5;">        Texture2D </span><span style="color:#bf616a;">texture </span><span>= new </span><span style="color:#eff1f5;">Texture2D(</span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">TextureFormat</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">RGB24</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//case: we take a pic on the center of screen
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//If you take a ScreenShot of the resolution size, you can use the following code.
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//texture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosX </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">width </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">float </span><span style="color:#bf616a;">imagePosY </span><span>= </span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Screen</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">height </span><span>- </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">) </span><span>/ </span><span style="color:#d08770;">2</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ReadPixels</span><span style="color:#eff1f5;">(</span><span>new </span><span style="color:#eff1f5;">Rect(</span><span style="color:#bf616a;">imagePosX</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imagePosY</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">x</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">imageSize</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">y</span><span style="color:#eff1f5;">), </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Apply</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Can select file extention.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">byte</span><span style="color:#eff1f5;">[] </span><span style="color:#bf616a;">jpgFile </span><span>= </span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">EncodeToJPG</span><span style="color:#eff1f5;">();
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Release explicitly.     
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">DestroyImmediate</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">texture</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Switch ScaleMode
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">uiScaleMode </span><span>= </span><span style="color:#bf616a;">CanvasScaler</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ScaleMode</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ScaleWithScreenSize</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">screenshotCanvas</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">matchWidthOrHeight </span><span>= </span><span style="color:#d08770;">0</span><span style="color:#b48ead;">f</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//Use the date in the file name,
+</span><span style="color:#eff1f5;">        </span><span style="color:#65737e;">//as it will be overwritten if the same file is present.
+</span><span style="color:#eff1f5;">        </span><span style="color:#b48ead;">string </span><span style="color:#bf616a;">savePath </span><span>= &quot;</span><span style="color:#a3be8c;">/</span><span>&quot; + </span><span style="color:#bf616a;">DateTime</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">Now</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">ToString</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">MMdd_hhmmss</span><span>&quot;</span><span style="color:#eff1f5;">) </span><span>+ &quot;</span><span style="color:#a3be8c;">.jpg</span><span>&quot;</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">        </span><span style="color:#bf616a;">File</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">WriteAllBytes</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">Application</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">dataPath </span><span>+ </span><span style="color:#bf616a;">savePath</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">jpgFile</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<h2 id="summary">Summary</h2>
+<p>Screenshot is necessary to <strong>share play data on social media</strong>. It's easy to take a full screen shot, but <strong>it takes a bit of work to process the image for ideal</strong>. You should try this method!</p>
+<h6 id="inter0"><div class="interlink">inter0</font></h6>
+<h2 id="references">References</h2>
+<p>*APIs for screenshot<br />
+‣<a href="https://docs.unity3d.com/ScriptReference/ScreenCapture.CaptureScreenshot.html">Unity - Scripting API: ScreenCapture.CaptureScreenshot</a><br />
+‣<a href="https://docs.unity3d.com/2018.4/Documentation/Manual/class-RenderTexture.html">Unity - Manual: Render Texture</a><br />
+‣<a href="https://docs.unity3d.com/ScriptReference/Texture2D.ReadPixels.html">Unity - Scripting API: Texture2D.ReadPixels</a></p>
+<p><a href="https://docs.unity3d.com/ScriptReference/Screen-width.html">Unity - Scripting API: Screen.width</a><br />
+<a href="https://forum.unity.com/threads/rendertexture-coordinate-system-origin-is-bottom-left-on-ipad-but-top-left-on-iphone-5s.375009/#post-2434377">RenderTexture coordinate system origin is bottom-left on iPad, but top-left on iPhone 5S - Unity Forum</a><br />
+<a href="https://docs.unity3d.com/2018.3/Documentation/ScriptReference/UI.CanvasScaler-uiScaleMode.html">Unity - Scripting API: UI.CanvasScaler.uiScaleMode</a></p>
+</div>
+    <footer class="post-footer">
+        
+        <ul class="post-tags">
+        
+            <li><a href="https://blog.skeyll.net/tags/unity/">Unity</a></li>
+        
+        </ul>
+        
+    </footer>
+</article>
+
+        </main>
+
+        <footer class="footer">
+            <span><a href="https://skeyll.net/policy">Privacy</a></span> <span>&copy;2019-2022 <a href="https://blog.skeyll.net"><a href="https://skeyll.net/">Skeyll</a></span>
+        </footer>
+    
+    </body>
+</html>

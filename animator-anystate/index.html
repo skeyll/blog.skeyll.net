@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Switch an animation from any state – Unity - Skeyll</title>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <meta name="viewport" content="width=100% initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+
+        <!-- Standard meta tags -->
+        <meta name="author" content="Skeyll">
+        <meta name="description" content="Link a command to each animation. How to use Any State of Unity Animator.">
+        <meta http-equiv="content-language" content="en">
+
+        <!-- Twitter meta tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@skeylls2">
+        <meta name="twitter:domain" content="blog.skeyll.net">
+        <meta name="twitter:description" content="Link a command to each animation. How to use Any State of Unity Animator.">
+        <meta name="twitter:image" content="https://blog.skeyll.net/image/mainimage.png">
+        <meta name="twitter:creator" content="@skeylls2">
+
+
+
+        <!-- Open Graph Tags -->
+        <meta property="og:site_name" content="Skeyll">
+        
+        <meta property="og:title" content="Switch an animation from any state – Unity">
+        <meta property="og:url" content="https://blog.skeyll.net/animator-anystate">
+        <meta property="og:description" content="Link a command to each animation. How to use Any State of Unity Animator.">
+        
+        <meta property="og:type" content="article">
+        <meta property="article:published_time" content="2020-02-15">
+        
+        
+        <meta property="article:tags" content="Unity">
+        
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://blog.skeyll.net/main.css">
+
+        <!-- Feeds -->
+        
+
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149364500-2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-149364500-2');
+        </script>
+
+        <script>
+            function setTheme() {
+                const time = new Date();
+      
+                const prev = localStorage.getItem('date');
+                const date = String(time.getMonth() + 1) + '.' + String(time.getDate());
+      
+                const now = time.getTime();
+                let sunrise;
+                let sunset;
+      
+                function setBodyClass() {
+                    if (now > sunrise && now < sunset) return;
+                    document.body.classList.add('dark');
+                }
+      
+                if (date !== prev) {
+                    fetch('https://api.ipgeolocation.io/astronomy?apiKey=5ed37d85103e4defa5df4c5298ed5215')
+                        .then(res => res.json())
+                        .then(data => {
+                            sunrise = data.sunrise.split(':').map(Number);
+                            sunset = data.sunset.split(':').map(Number);
+                    })
+                    .catch(() => {
+                        sunrise = [7, 0];
+                        sunset = [19, 0];
+                    })
+                    .finally(() => {
+                        sunrise = time.setHours(sunrise[0], sunrise[1], 0);
+                        sunset = time.setHours(sunset[0], sunset[1], 0);
+                        setBodyClass();
+                        localStorage.setItem('sunrise', sunrise);
+                        localStorage.setItem('sunset', sunset);
+                    });
+                    localStorage.setItem('date', date);
+                } else {
+                    sunrise = Number(localStorage.getItem('sunrise'));
+                    sunset = Number(localStorage.getItem('sunset'));
+                    setBodyClass();
+                }
+            }
+        </script>
+    </head>
+    
+    <body class="single">
+    
+    <!-- Apply theme -->
+    <script>
+      setTheme();
+    </script>
+
+    
+        <header class="header">
+            <nav class="nav">
+                
+                <p class="logo"><a href="https://blog.skeyll.net">Skeyll</a></p>
+                
+                <ul class="menu">
+                    
+                    <li><a href="https:&#x2F;&#x2F;skeyll.net&#x2F;">HOME</a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main">
+            
+<article class="post-single">
+    <header class="post-header">
+        <h1 class="post-title">Switch an animation from any state – Unity</h1>
+        <div class="post-meta">
+            <span class="post-author">
+                Skeyll
+            </span>
+            <span class="post-date"> / <time>February 15, 2020</time></span>
+        </div>
+    </header>
+    <div class="post-content"><p>When creating an action game or a battle game, you may want to <strong>link a key input to an animation</strong>. All animation need transition from anywhere. If each state were connected with all others, Animator should become hard to see. In such case you can use “<strong>Any State</strong>” of Animator.</p>
+<span id="continue-reading"></span>
+<p>Environment: Unity 2018.4.6f</p>
+<ul>
+<li><a href="https://blog.skeyll.net/animator-anystate/#any-state">How to use Animator “Any State”.</a></li>
+<li><a href="https://blog.skeyll.net/animator-anystate/#call-an-animation-at-a-key-input">The way for simple action game.</a></li>
+<li><a href="https://blog.skeyll.net/animator-anystate/#stop-coroutine-when-an-input-is-continuous">Take measure for continuous inputs as combat game.</a></li>
+</ul>
+<h2 id="any-state">Any State</h2>
+<p><strong>A state linked to “Any State” can transition from all states.</strong></p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/02/AnimationSample03-300x85.png" alt="" width="300" height="85" class="alignnone size-medium wp-image-276" srcset="https://blog.skeyll.net/image/2020/02/AnimationSample03-300x85.png 300w, https://blog.skeyll.net/image/2020/02/AnimationSample03-644x182.png 644w, https://blog.skeyll.net/image/2020/02/AnimationSample03.png 739w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<p>But if it’s just linked by “make transition”, <strong>same animation is called many times</strong>. It need uncheck “<strong>Can Transition To Self</strong>“. This parameter is on a cursor of transition.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/02/AnimationSample02-227x300.png" alt="" width="227" height="300" class="alignnone size-medium wp-image-275" srcset="https://blog.skeyll.net/image/2020/02/AnimationSample02-227x300.png 227w, https://blog.skeyll.net/image/2020/02/AnimationSample02.png 432w" sizes="(max-width: 227px) 100vw, 227px" /> 
+<h2 id="call-an-animation-at-a-key-input">Call an animation at a key input</h2>
+<p>  The state isn’t called many times but at the end of animation a model just stand.  To chage it to a default state you may link each state to “Exit”, then the state is <span>infinitely </span>called again.</p>
+<img loading="lazy" src="http://blog.skeyll.net/image/2020/02/AnmationSample01-300x154.png" alt="" width="300" height="154" class="alignnone size-medium wp-image-274" srcset="https://blog.skeyll.net/image/2020/02/AnmationSample01-300x154.png 300w, https://blog.skeyll.net/image/2020/02/AnmationSample01-644x330.png 644w, https://blog.skeyll.net/image/2020/02/AnmationSample01.png 753w" sizes="(max-width: 300px) 100vw, 300px" /> 
+<p>If it want to change the “Stay” animation, **a parameter of Animator need to be initialized. ** **** You change the parameter to “Stay” value after switching a state.</p>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>System.Collections; </span><span style="color:#65737e;">//Need this for coroutine.
+</span><span>
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">AnimationManager </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">　 </span><span style="color:#65737e;">//Set a model&#39;s &quot;Animation Controller&quot; on Inspecter.
+</span><span style="color:#eff1f5;">  [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Animator </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">; 
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">　</span><span style="color:#65737e;">//Call this method at an inputing key.
+</span><span style="color:#eff1f5;">　</span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">PlayAnimation</span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">state</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">　　　</span><span style="color:#65737e;">//Create &quot;Command&quot; in Parameters and change each animation by its value.
+</span><span style="color:#eff1f5;">     </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetInteger</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Command</span><span>&quot;</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">state</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">　　　</span><span style="color:#bf616a;">StartCoroutine</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">InitializeParameter</span><span style="color:#eff1f5;">());
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">　IEnumerator </span><span style="color:#8fa1b3;">InitializeParameter</span><span style="color:#eff1f5;">(){ 
+</span><span style="color:#eff1f5;">　　 </span><span style="color:#65737e;">//Need a flame for switching animation.
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Without this the above method can&#39;t switch a state.
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">yield return </span><span style="color:#d08770;">null</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">　　 </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetInteger</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Command</span><span>&quot;</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<h2 id="stop-coroutine-when-an-input-is-continuous">Stop coroutine when an input is continuous</h2>
+<div>
+</div>
+<div>
+  If a project is simple action game, the above code have nothing problem. However, about <strong>an intense typing like battle game</strong> this code does not work well. If it&#8217;s invoked <span>continuously, a </span>follow input is overwrote by the  previous one&#8217;s coroutine. So, <strong>it need the process for stopping the coroutine or a input</strong>.
+</div>
+<div>
+</div>
+<pre data-lang="cs" style="background-color:#2b303b;color:#c0c5ce;" class="language-cs "><code class="language-cs" data-lang="cs"><span style="color:#b48ead;">using </span><span>UnityEngine;
+</span><span style="color:#b48ead;">using </span><span>System.Collections;
+</span><span>
+</span><span style="color:#b48ead;">public class </span><span style="color:#ebcb8b;">AnimationManager </span><span style="color:#eff1f5;">: </span><span style="color:#a3be8c;">MonoBehaviour</span><span style="color:#eff1f5;">{
+</span><span style="color:#eff1f5;">  [</span><span style="color:#bf616a;">SerializeField</span><span style="color:#eff1f5;">] Animator </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">; 
+</span><span style="color:#eff1f5;">  </span><span style="color:#b48ead;">bool </span><span style="color:#bf616a;">isContinuous</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">　</span><span style="color:#65737e;">//Call this method at an inputing key.
+</span><span style="color:#eff1f5;">　</span><span style="color:#b48ead;">public void </span><span style="color:#8fa1b3;">PlayAnimation</span><span style="color:#eff1f5;">(</span><span style="color:#b48ead;">int </span><span style="color:#bf616a;">state</span><span style="color:#eff1f5;">) {
+</span><span style="color:#eff1f5;">      </span><span style="color:#b48ead;">if</span><span style="color:#eff1f5;">(</span><span style="color:#bf616a;">isContinuous</span><span style="color:#eff1f5;">){
+</span><span style="color:#eff1f5;">      </span><span style="color:#65737e;">//The way to overwrite the input by new one.
+</span><span style="color:#eff1f5;">      </span><span style="color:#bf616a;">StopCoroutine</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">InitializeParameter</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">      </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetInteger</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Command</span><span>&quot;</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">      </span><span style="color:#65737e;">//The way to stop input.
+</span><span style="color:#eff1f5;">      </span><span style="color:#65737e;">//return;
+</span><span style="color:#eff1f5;">      }
+</span><span style="color:#eff1f5;">     
+</span><span style="color:#eff1f5;">     </span><span style="color:#bf616a;">isContinuous </span><span>= </span><span style="color:#d08770;">true</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">     </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetInteger</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Command</span><span>&quot;</span><span style="color:#eff1f5;">, </span><span style="color:#bf616a;">state</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">     </span><span style="color:#65737e;">//Need to call coroutine by string for stopping this.
+</span><span style="color:#eff1f5;">     </span><span style="color:#65737e;">//Or the coroutine add IEnumerator variable and call the process by it.
+</span><span style="color:#eff1f5;">     </span><span style="color:#65737e;">//The method way(like XXX()) creates new coroutine every time it&#39;s invoked.
+</span><span style="color:#eff1f5;">　　　</span><span style="color:#bf616a;">StartCoroutine</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">InitializeParameter</span><span>&quot;</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">　IEnumerator </span><span style="color:#8fa1b3;">InitializeParameter</span><span style="color:#eff1f5;">(){ 
+</span><span style="color:#eff1f5;">　　 </span><span style="color:#65737e;">//Need a flame for switching animation.
+</span><span style="color:#eff1f5;">    </span><span style="color:#65737e;">//Without this the above method can&#39;t switch a state.
+</span><span style="color:#eff1f5;">    </span><span style="color:#b48ead;">yield return </span><span style="color:#d08770;">null</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">
+</span><span style="color:#eff1f5;">　　 </span><span style="color:#bf616a;">animator</span><span style="color:#eff1f5;">.</span><span style="color:#bf616a;">SetInteger</span><span style="color:#eff1f5;">(</span><span>&quot;</span><span style="color:#a3be8c;">Command</span><span>&quot;</span><span style="color:#eff1f5;">, </span><span style="color:#d08770;">0</span><span style="color:#eff1f5;">);
+</span><span style="color:#eff1f5;">     </span><span style="color:#65737e;">//Switch the flag after this process has finished.
+</span><span style="color:#eff1f5;">     </span><span style="color:#bf616a;">isCoutinuous </span><span>= </span><span style="color:#d08770;">false</span><span style="color:#eff1f5;">;
+</span><span style="color:#eff1f5;">    }
+</span><span style="color:#eff1f5;">}
+</span></code></pre>
+<p><a href="https://blog.skeyll.net/animator-anystate/#inter0">*Haw to stop coroutine.</a></p>
+<h6 id="inter0"><div class="interlink">inter0</font></h6>
+<h2 id="references">References</h2>
+<div class="hcb_wrap">
+  <p>
+    <a href="https://docs.unity3d.com/Manual/class-State.html">Unity &#8211; Manual: Animation States</a><br /> <a href="http://tsubakit1.hateblo.jp/entry/2017/01/13/233000">【Unity】AnimationControllerのAnyStateを使用してる際、現在のStateへ何度も移動しないようにする &#8211; テラシュールブログ</a> <a id="Ref1"></a><br /> <a href="https://answers.unity.com/questions/300864/how-to-stop-a-co-routine-in-c-instantly.html">How to stop a co-routine in C# instantly? &#8211; Unity Answers</a>
+  </p>
+<p>
+    &nbsp;
+  </p>
+</div></div>
+    <footer class="post-footer">
+        
+        <ul class="post-tags">
+        
+            <li><a href="https://blog.skeyll.net/tags/unity/">Unity</a></li>
+        
+        </ul>
+        
+    </footer>
+</article>
+
+        </main>
+
+        <footer class="footer">
+            <span><a href="https://skeyll.net/policy">Privacy</a></span> <span>&copy;2019-2022 <a href="https://blog.skeyll.net"><a href="https://skeyll.net/">Skeyll</a></span>
+        </footer>
+    
+    </body>
+</html>

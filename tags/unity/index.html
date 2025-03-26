@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Skeyll</title>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <meta name="viewport" content="width=100% initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+
+        <!-- Standard meta tags -->
+        
+        
+        <meta http-equiv="content-language" content="en">
+
+        <!-- Twitter meta tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@skeylls2">
+        <meta name="twitter:domain" content="blog.skeyll.net">
+        
+        <meta name="twitter:image" content="https://blog.skeyll.net/image/mainimage.png">
+        <meta name="twitter:creator" content="@skeylls2">
+
+
+
+        <!-- Open Graph Tags -->
+        <meta property="og:site_name" content="Skeyll">
+        
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://blog.skeyll.net">
+        
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://blog.skeyll.net/main.css">
+
+        <!-- Feeds -->
+        
+
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149364500-2"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-149364500-2');
+        </script>
+
+        <script>
+            function setTheme() {
+                const time = new Date();
+      
+                const prev = localStorage.getItem('date');
+                const date = String(time.getMonth() + 1) + '.' + String(time.getDate());
+      
+                const now = time.getTime();
+                let sunrise;
+                let sunset;
+      
+                function setBodyClass() {
+                    if (now > sunrise && now < sunset) return;
+                    document.body.classList.add('dark');
+                }
+      
+                if (date !== prev) {
+                    fetch('https://api.ipgeolocation.io/astronomy?apiKey=5ed37d85103e4defa5df4c5298ed5215')
+                        .then(res => res.json())
+                        .then(data => {
+                            sunrise = data.sunrise.split(':').map(Number);
+                            sunset = data.sunset.split(':').map(Number);
+                    })
+                    .catch(() => {
+                        sunrise = [7, 0];
+                        sunset = [19, 0];
+                    })
+                    .finally(() => {
+                        sunrise = time.setHours(sunrise[0], sunrise[1], 0);
+                        sunset = time.setHours(sunset[0], sunset[1], 0);
+                        setBodyClass();
+                        localStorage.setItem('sunrise', sunrise);
+                        localStorage.setItem('sunset', sunset);
+                    });
+                    localStorage.setItem('date', date);
+                } else {
+                    sunrise = Number(localStorage.getItem('sunrise'));
+                    sunset = Number(localStorage.getItem('sunset'));
+                    setBodyClass();
+                }
+            }
+        </script>
+    </head>
+    
+    <body class="list">
+    
+    <!-- Apply theme -->
+    <script>
+      setTheme();
+    </script>
+
+    
+        <header class="header">
+            <nav class="nav">
+                
+                <h1 class="logo"><a href="https://blog.skeyll.net">Skeyll</a></h1>
+                
+                <ul class="menu">
+                    
+                    <li><a href="https:&#x2F;&#x2F;skeyll.net&#x2F;">HOME</a></li>
+                    
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main">
+            
+    <div class="posts">
+        <h2>Tag: Unity</h2>
+        
+            
+        
+        
+        <article class="post-entry">
+            
+                    <header class="entry-header">
+                        <h2>Take same size Screenshots regardless of resolutions - Unity</h2>
+                    </header>
+                    <section class=entry-content>
+                        <p>When we create a game, we often support <strong>the multiple-device</strong>. Even if the screen resolutions are different, <strong>canvas config can realize it</strong> easily. It changes the UI ratio to fit each resolution.<br />
+<strong>To take a screenshot on a part of a screen</strong>, <strong>we need input a resolution</strong> but we cannot know the object size on each device. Do we need calculate each device ratio for taking a screenshot on a game result and a user profile?<br />
+No. <strong>We can do it just with using another canvas or changing CanvasScaler by a script.</strong></p>
+
+                    </section>
+                    <footer class="entry-footer">
+                        <time>April 30, 2020</time>　[
+                        
+                            
+                                Unity
+                            
+                            ]
+                        
+                    </footer>
+                    <a class="entry-link" href="https:&#x2F;&#x2F;blog.skeyll.net&#x2F;take-screenshots-unity&#x2F;"></a>
+
+        </article>
+        
+        <article class="post-entry">
+            
+                    <header class="entry-header">
+                        <h2>Create the button getting a input by various ways – Unity</h2>
+                    </header>
+                    <section class=entry-content>
+                        <p>Mobile game <em>get player inputs by the buttons</em>, each with a specific function, or <em>by its attribute</em> like tap or long tap. The former is simple. It just calls each public method. However, <em>the latter case need manage flags as many as the number of commands, then it`s likely to complicate. The corutine make this easier.</em></p>
+
+                    </section>
+                    <footer class="entry-footer">
+                        <time>March 29, 2020</time>　[
+                        
+                            
+                                Unity
+                            
+                            ]
+                        
+                    </footer>
+                    <a class="entry-link" href="https:&#x2F;&#x2F;blog.skeyll.net&#x2F;multiple-inputs-button&#x2F;"></a>
+
+        </article>
+        
+        <article class="post-entry">
+            
+                    <header class="entry-header">
+                        <h2>Switch an animation from any state – Unity</h2>
+                    </header>
+                    <section class=entry-content>
+                        <p>When creating an action game or a battle game, you may want to <strong>link a key input to an animation</strong>. All animation need transition from anywhere. If each state were connected with all others, Animator should become hard to see. In such case you can use “<strong>Any State</strong>” of Animator.</p>
+
+                    </section>
+                    <footer class="entry-footer">
+                        <time>February 15, 2020</time>　[
+                        
+                            
+                                Unity
+                            
+                            ]
+                        
+                    </footer>
+                    <a class="entry-link" href="https:&#x2F;&#x2F;blog.skeyll.net&#x2F;animator-anystate&#x2F;"></a>
+
+        </article>
+        
+        <article class="post-entry">
+            
+                    <header class="entry-header">
+                        <h2>ScriptableObject Perfect Guide</h2>
+                    </header>
+                    <section class=entry-content>
+                        <p> ”A ScriptableObject is a data container that you can use to save large amounts of data, independent of class instances. ”<a href="https://blog.skeyll.net/scriptableobject-perfect-guide/#inter0">*1</a> <em>It improve project’s performance</em>. When your project have some similar scripts like managing a enemy and environment, those parameter create each instance in memory. If t<span>hose refer to a variable in ScripatableObject, it reduce instance to one.</span></p>
+
+                    </section>
+                    <footer class="entry-footer">
+                        <time>January  2, 2020</time>　[
+                        
+                            
+                                Unity
+                            
+                            ]
+                        
+                    </footer>
+                    <a class="entry-link" href="https:&#x2F;&#x2F;blog.skeyll.net&#x2F;scriptableobject-perfect-guide&#x2F;"></a>
+
+        </article>
+        
+        
+        
+        <footer class="page-footer">
+            <nav class="pagination">
+                
+                <!-- <span>Page 1 of 2</span> -->
+                
+                    <a class="next" href="https:&#x2F;&#x2F;blog.skeyll.net&#x2F;tags&#x2F;unity&#x2F;page&#x2F;2&#x2F;">Next →</a>
+                
+            </nav>
+        </footer>
+        
+    </div>
+
+        </main>
+
+        <footer class="footer">
+            <span><a href="https://skeyll.net/policy">Privacy</a></span> <span>&copy;2019-2022 <a href="https://blog.skeyll.net"><a href="https://skeyll.net/">Skeyll</a></span>
+        </footer>
+    
+    </body>
+</html>
